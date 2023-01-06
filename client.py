@@ -4,14 +4,11 @@ from log import logger
 from urls import URLS
 
 
-def parse_request(request: str) -> tuple[str, str] | None:
+def parse_request(request: str) -> tuple[str, str]:
     parsed = request.split(' ')
 
-    try:
-        method = parsed[0]
-        url = parsed[1]
-    except IndexError:
-        return None, None                     # !!!!!!!!!!!!!!! telnet localhost 5000
+    method = parsed[0]
+    url = parsed[1]
 
     return method, url
 
@@ -24,13 +21,8 @@ def generate_headers(method: str, url: str) -> tuple[int, str]:
         header += f' {code} Method not allowed'
 
     elif not url in URLS:
-        # return response(404, 'Not found')
         code = 404
         header += f' {code} Not found'
-
-    elif method is None:
-        code = 400
-        header += f' {code} Bad request'
 
     else:
         code = 200
@@ -50,15 +42,13 @@ def generate_content(code: int, url: str) -> str:
         content = get_content(f'<h1>{code}</h1> Not found')
     elif code == 405:
         content = get_content(f'<h1>{code}</h1> Not allowed')
-    elif code == 200:
-        content = get_content(f'<h1>{URLS[url]}</h1>')
     else:
-        content = get_content(f'<h1>{400}</h1> Bad request')
+        content = get_content(URLS[url]())
             
     return content
         
 def generate_response(request: str) -> bytes:
-    method, url = parse_request(request)     # type: ignore
+    method, url = parse_request(request)
     code, headers = generate_headers(method, url)
     body = generate_content(code, url)
 
@@ -69,7 +59,6 @@ def client(client_socket: socket) -> GenType:
     while True:
 
         yield ("read", client_socket)
-
 
         request = client_socket.recv(4096)
         logger.info("Server received the request")

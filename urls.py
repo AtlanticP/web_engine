@@ -1,4 +1,7 @@
+from views import index, first, second
+
 URLS = {
-        "/": 'Hello index',
-        '/blog': 'Hello blog'
+        "/": index,
+        '/first': first,
+        '/second': second
         }

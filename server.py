@@ -54,7 +54,6 @@ def event_loop():
                 to_read[sock] =  task
 
             if sign == "write":
-                logger.info('write ')
                 to_write[sock] = task
 
         except StopIteration:
